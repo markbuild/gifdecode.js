@@ -1,4 +1,4 @@
-# gif.js
+# gifdecode.js
 Decoding static and animated gifs on browsers.
 
 ## References
