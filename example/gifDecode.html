@@ -1,0 +1,99 @@
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>GIF DECODE</title>
+<style>
+body{font-size:12px;}
+.structure span{border:1px solid #000;border-radius: 4px;padding: 2px 5px;}
+.structure{line-height: 24px;}
+</style>
+<script type="text/javascript" src="../gifdecode.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.js"></script>
+<script type="text/javascript">
+$(function(){
+    $("input").change(function(e){
+        var file;
+        switch ($(this).attr("name")) {
+            case "file":
+                file = e.target.files[0];
+                decodegif(file);
+                break;
+            case "src":
+                loadImageSrcToBlob($(this).val(), function(blobFile) {
+                    if(!blobFile) return false;
+                    decodegif(blobFile);
+                });
+                break;
+        }
+    });
+    function decodegif(_file){
+        var reader = new FileReader;
+        reader.onload = function() {
+            window.giffile = new GifFile(reader.result);
+            console.log(giffile);
+            var template = "<div>";
+            template +='<p><b>Signature:</b> ' + giffile.signature+ '</p>';
+            template +='<p><b>Version:</b> ' + giffile.version+ '</p>';
+            template +='<p><b>Canvas Width:</b> ' + giffile.canvasWidth+ 'px</p>';
+            template +='<p><b>Canvas Height:</b> ' + giffile.canvasHeight+ 'px</p>';
+            template +='<p><b>Globla Color Table Size:</b> ' + giffile.globalColorTableSize+ '</p>';
+            template +='<p><b>Globla Color Table:</b></p><div style="height: 200px; overflow: auto; border: 1px solid #000;width: 300px;"><table>';
+            var globalColorTable = giffile.getGlobalColorTable();
+            for(var i=0;i<globalColorTable.length;i++){
+                template +='<tr><td>#'+i+'</td><td><span style="background:'+globalColorTable[i]+';border:1px solid #000;width:12px;height:8px;display:inline-block;"></span> ' + globalColorTable[i]+ '</td></tr>';
+            }
+            template +='</table></div>';
+            template +='<p><b>Background Color:</b> ' + globalColorTable[giffile.backgroundColorIndex]+ '</p>';
+            template +='<div class="structure"><b>Structure:</b> ' + giffile.getStructure() + '</div>';
+            template +='<div id="frames"></div>';
+            $('#info').html(template);
+            var canvas,ctx,pixel;
+            for(i in giffile.frames) {
+                $("#frames").append("<canvas id='canvas"+i+"' width='"+giffile.canvasWidth+"' height='"+giffile.canvasHeight+"'></canvas> <span>"+giffile.frames[i].delayTime+"s</span> ");
+                canvas = document.getElementById("canvas"+i);
+                ctx = canvas.getContext('2d');
+                for(pixel=0;pixel<giffile.frames[i].pixelColors.length;pixel++) {
+                    ctx.fillStyle=giffile.frames[i].pixelColors[pixel];
+                    ctx.fillRect(pixel%giffile.canvasWidth, Math.floor(pixel/giffile.canvasWidth),1,1);
+                }
+            }
+        };
+        reader.readAsArrayBuffer(_file);
+    }
+    function loadImageSrcToBlob(_url, _callback) {
+        if(_url.indexOf("data:image")==0){
+            _callback(dataURLtoBlob(_url));
+        } else {
+            var xhr = new XMLHttpRequest();  
+            xhr.open('get', _url, true);  
+            xhr.responseType = 'blob';  
+            xhr.onload = function() {  
+                _callback(this.status == 200 ? this.response : false);
+            }
+            xhr.send();  
+        }
+        return true;  
+    }
+    function dataURLtoBlob(_dataurl) {
+        var arr = _dataurl.split(','), 
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), 
+        n = bstr.length, 
+        u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+    }
+
+});
+
+</script>
+</head>
+<body>
+    <h1>GIF Decode</h1>
+    <p> Upload gif file: <input type="file" accept=".gif" name="file"/></p>
+    <p> Or paste gif src: <input type="text" name="src"/>(eg: http://domain.com/x.gif or data:image/gif;base64...)</p>
+    <div id="info" style="margin-bottom:10px;"></div>
+</body>
+</html>
