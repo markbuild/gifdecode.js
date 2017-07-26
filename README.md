@@ -2,7 +2,7 @@
 Decoding static and animated gifs on browsers.
 
 ## Demo
-https://markbuild.github.io/comps/baiduyingyan/onprod/js/gifdecode.js/example/gifDecode.html
+http://markbuild.com/proj/js/gifdecode.js/example/gifDecode.html
 
 A gif file
 
