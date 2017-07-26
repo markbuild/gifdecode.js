@@ -64,9 +64,9 @@ GifFile.prototype.init = function () {
             var byteStream=[];
             do {
                 var subBlockSize = this.decArray[index];
-		if(subBlockSize==undefined) {
-		    return;
-		}
+                if(subBlockSize==undefined) {
+                    return;
+                }
                 for(var i=1;i<=subBlockSize;i++) {
                     byteStream.push(this.decArray[index+i]);
                 }
@@ -75,6 +75,9 @@ GifFile.prototype.init = function () {
             var indexStream = this.lzwDecode(byteStream,lzwMiniCodeSize);
             for(var h=0;h<imageHeight;h++){
                 for(var w=0;w<imageWidth;w++){
+                    if(!indexStream[h*imageWidth+w]) {
+                        indexStream[h*imageWidth+w]=this.backgroundColorIndex;
+                    }
                     if(colorTable[indexStream[h*imageWidth+w]].indexOf("rgba")>=0 && previousDisposalMethod!=2) {
                         continue;
                     }
@@ -122,6 +125,9 @@ GifFile.prototype.init = function () {
                     index+=2;
                     do {
                         var subBlockSize = this.decArray[index];
+                        if(subBlockSize==0){
+                            return;
+                        }
                         index+=subBlockSize+1;
                     } while (this.decArray[index]!=0);
                     index++;
@@ -133,7 +139,7 @@ GifFile.prototype.init = function () {
         }
     } while(!trailer);
 }
- 
+
 GifFile.prototype.getGlobalColorTable = function () {
     var colortable = [];
     for(var i=0;i<this.globalColorTableSize;i++) {
@@ -169,98 +175,98 @@ GifFile.prototype.lzwDecode = function (_byteStream,_lzwMiniCodeSize) {
     var code_tmp;
 
     for (code = 0; code < clearCode; code++) { // Initialize the code table
-	codeTable[code]=[0,code]; // [codeBefore, singleIndexCode]
+        codeTable[code]=[0,code]; // [codeBefore, singleIndexCode]
     }
 
     while(1) {
-	if (bits < code_size) {
-	    bitStack += _byteStream[byteindex] << bits;
-	    byteindex++;
-	    bits += 8;
-	    continue;
-	}
-	// Get new code.
-	code = bitStack & code_mask;
-	bitStack >>= code_size;
-	bits -= code_size;
-	// EOI Code
-	if ((code > nextAvailableCode) || (code == EOI)) {
-	    break;
-	}
-	// Clear Code
-	if (code == clearCode) {
-	    code_size = _lzwMiniCodeSize + 1;
-	    code_mask = (1 << code_size) - 1;
-	    nextAvailableCode = clearCode + 2;
-	    codeBefore= -1; 
-	    continue;
-	}
-	if (codeBefore == -1) {
-	    codeStack[top++] = codeTable[code][1];
-	    codeBefore = code;
-	    singleIndexCode= code; 
-	    continue;
-	}
-	code_tmp = code;
-	if (code == nextAvailableCode) {
-	    code = codeBefore;
-	    codeStack[top++] = singleIndexCode; 
-	}
-	while (code > clearCode) {
-	    codeStack[top++] = codeTable[code][1];
-	    code = codeTable[code][0];
-	}
-	singleIndexCode = codeTable[code][1] & 0xff; // Max single index code is #255
-	codeStack[top++] = singleIndexCode;
+        if (bits < code_size) {
+            bitStack += _byteStream[byteindex] << bits;
+            byteindex++;
+            bits += 8;
+            continue;
+        }
+        // Get new code.
+        code = bitStack & code_mask;
+        bitStack >>= code_size;
+        bits -= code_size;
+        // EOI Code
+        if ((code > nextAvailableCode) || (code == EOI)) {
+            break;
+        }
+        // Clear Code
+        if (code == clearCode) {
+            code_size = _lzwMiniCodeSize + 1;
+            code_mask = (1 << code_size) - 1;
+            nextAvailableCode = clearCode + 2;
+            codeBefore= -1; 
+            continue;
+        }
+        if (codeBefore == -1) {
+            codeStack[top++] = codeTable[code][1];
+            codeBefore = code;
+            singleIndexCode= code; 
+            continue;
+        }
+        code_tmp = code;
+        if (code == nextAvailableCode) {
+            code = codeBefore;
+            codeStack[top++] = singleIndexCode; 
+        }
+        while (code > clearCode) {
+            codeStack[top++] = codeTable[code][1];
+            code = codeTable[code][0];
+        }
+        singleIndexCode = codeTable[code][1] & 0xff; // Max single index code is #255
+        codeStack[top++] = singleIndexCode;
 
-	// Add a row for index buffer + K into code table
-	if(nextAvailableCode <= MAX_CODE) {
-	    codeTable[nextAvailableCode] = [codeBefore,singleIndexCode]; //?
-	    nextAvailableCode++;
-	    if (((nextAvailableCode & code_mask) === 0) && (nextAvailableCode <= MAX_CODE)) { 
-		code_size++; 
-		code_mask = (1 << code_size) - 1;
-	    }
-	}
-	codeBefore= code_tmp;
-	while(top>0){
-	    top--;
-	    indexStream.push(codeStack[top]);
-	}
+        // Add a row for index buffer + K into code table
+        if(nextAvailableCode <= MAX_CODE) {
+            codeTable[nextAvailableCode] = [codeBefore,singleIndexCode]; //?
+            nextAvailableCode++;
+            if (((nextAvailableCode & code_mask) === 0) && (nextAvailableCode <= MAX_CODE)) { 
+                code_size++; 
+                code_mask = (1 << code_size) - 1;
+            }
+        }
+        codeBefore= code_tmp;
+        while(top>0){
+            top--;
+            indexStream.push(codeStack[top]);
+        }
     }
 
     return indexStream;
 }
 GifFile.prototype.getExtensionTypeName = function (_e) {
     switch (_e) {
-	case 249: //0xF9
-	    return "<span style='background:#CFCB9D'>Graphics Control Extension</span>";
-	    break;
-	case 255://0xFF
-	    return "<span style='background:#CAC9A9'>Application Extension</span>";
-	    break;
-	case 254: //0xFE
-	    return "<span style='background:#CDCCAC'>Comment Extension</span>"; 
-	    break;
-	case 1: //0x01
-	    return "<span style='background:#B5B499'>Plain Text Extension</span>";
-	    break;
-	case 44://0x2C
-	    return "<span style='background:#B9C7D1'>Image Descriptor</span>";
-	    break;
-	case 45:
-	    return "<span style='background:#DCDCDC'>Local Color Table</span>";
-	    break;
-	case 46:
-	    return "<span style='background:#BBB1B1'>Image Data</span><br>";
-	    break;
+        case 249: //0xF9
+            return "<span style='background:#CFCB9D'>Graphics Control Extension</span>";
+            break;
+        case 255://0xFF
+            return "<span style='background:#CAC9A9'>Application Extension</span>";
+            break;
+        case 254: //0xFE
+            return "<span style='background:#CDCCAC'>Comment Extension</span>"; 
+            break;
+        case 1: //0x01
+            return "<span style='background:#B5B499'>Plain Text Extension</span>";
+            break;
+        case 44://0x2C
+            return "<span style='background:#B9C7D1'>Image Descriptor</span>";
+            break;
+        case 45:
+            return "<span style='background:#DCDCDC'>Local Color Table</span>";
+            break;
+        case 46:
+            return "<span style='background:#BBB1B1'>Image Data</span><br>";
+            break;
     }
 }
 GifFile.prototype.getStructure = function () {
     var info="<span style='background:#DDD08C'>Header</span> - <span style='background:#A5B3B2'>Logical Screen Descriptor</span>";
     info += this.hasGlobalColorTable?" - <span style='background:#D8D8D8'>Global Color Table</span><br>":"<br>";
     for(var i in this.structureBlocks) {
-	info+=" - "+this.getExtensionTypeName(this.structureBlocks[i]);
+        info+=" - "+this.getExtensionTypeName(this.structureBlocks[i]);
     }
     info+= "- <span style='background:#F6E89B'>Trailer</span>";
     return info;
