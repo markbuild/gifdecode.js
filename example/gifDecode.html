@@ -46,7 +46,7 @@ $(function(){
             template +='</table></div>';
             template +='<p><b>Background Color:</b> ' + globalColorTable[giffile.backgroundColorIndex]+ '</p>';
             template +='<div class="structure"><b>Structure:</b> ' + giffile.getStructure() + '</div>';
-            template +='<div id="frames"></div>';
+            template +='<p><b>Frames:</b></p><div id="frames"></div>';
             $('#info').html(template);
             var canvas,ctx,pixel;
             for(i in giffile.frames) {
