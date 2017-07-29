@@ -6,9 +6,10 @@
 body{font-size:12px;}
 .structure span{border:1px solid #000;border-radius: 4px;padding: 2px 5px;}
 .structure{line-height: 24px;}
+#frames canvas{background:url(data:image/gif;base64,R0lGODlhCAAIAIAAAP///8zMzCH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS41LWMwMTQgNzkuMTUxNDgxLCAyMDEzLzAzLzEzLTEyOjA5OjE1ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCBDQyAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDE3LTA3LTI5VDE1OjIzOjUyKzA4OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAxNy0wNy0yOVQxNToyNDowNSswODowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAxNy0wNy0yOVQxNToyNDowNSswODowMCIgZGM6Zm9ybWF0PSJpbWFnZS9naWYiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RTc1MzRDMDM3NDJFMTFFN0E1NzlEMEQ3ODY5QURCRTMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RTc1MzRDMDQ3NDJFMTFFN0E1NzlEMEQ3ODY5QURCRTMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpFNzUzNEMwMTc0MkUxMUU3QTU3OUQwRDc4NjlBREJFMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpFNzUzNEMwMjc0MkUxMUU3QTU3OUQwRDc4NjlBREJFMyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PgH//v38+/r5+Pf29fTz8vHw7+7t7Ovq6ejn5uXk4+Lh4N/e3dzb2tnY19bV1NPS0dDPzs3My8rJyMfGxcTDwsHAv769vLu6ubi3trW0s7KxsK+urayrqqmop6alpKOioaCfnp2cm5qZmJeWlZSTkpGQj46NjIuKiYiHhoWEg4KBgH9+fXx7enl4d3Z1dHNycXBvbm1sa2ppaGdmZWRjYmFgX15dXFtaWVhXVlVUU1JRUE9OTUxLSklIR0ZFRENCQUA/Pj08Ozo5ODc2NTQzMjEwLy4tLCsqKSgnJiUkIyIhIB8eHRwbGhkYFxYVFBMSERAPDg0MCwoJCAcGBQQDAgEAACH5BAAAAAAALAAAAAAIAAgAAAINhBEZh8q6DoTPSWvoKQA7);}
 </style>
 <script type="text/javascript" src="../gifdecode.js"></script>
-<script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
 <script type="text/javascript">
 $(function(){
     $("input").change(function(e){
@@ -16,7 +17,7 @@ $(function(){
         switch ($(this).attr("name")) {
             case "file":
                 file = e.target.files[0];
-                decodegif(file);
+                if(file) decodegif(file);
                 break;
             case "src":
                 loadImageSrcToBlob($(this).val(), function(blobFile) {
