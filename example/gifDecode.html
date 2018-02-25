@@ -15,6 +15,7 @@ body{font-size:12px;}
 $(function(){
     $("input").change(function(e){
         var file;
+        $('#info').html('Loading...');
         switch ($(this).attr("name")) {
             case "file":
                 file = e.target.files[0];
@@ -67,7 +68,7 @@ $(function(){
             _callback(dataURLtoBlob(_url));
         } else {
             var xhr = new XMLHttpRequest();  
-            xhr.open('get', _url, true);  
+            xhr.open('get', 'http://markbuild.com/proj/js/gifdecode.js/curlimg.php?src='+_url, true);  
             xhr.responseType = 'blob';  
             xhr.onload = function() {  
                 _callback(this.status == 200 ? this.response : false);
@@ -95,7 +96,7 @@ $(function(){
 <body>
     <h1>GIF Decode</h1>
     <p> Upload gif file: <input type="file" accept=".gif" name="file"/></p>
-    <p> Or paste gif src: <input type="text" name="src"/>(eg: http://domain.com/x.gif or data:image/gif;base64...)</p>
+    <p> Or paste gif src(&t): <input type="text" name="src"/>(eg: http://domain.com/x.gif or data:image/gif;base64...)</p>
     <div id="info" style="margin-bottom:10px;"></div>
 </body>
 </html>
